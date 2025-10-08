@@ -27,15 +27,16 @@ jobs:
 
       - name: Set image tag (lowercase and dynamic)
         id: meta
+        # FIX: Define TAG as a step environment variable so the shell doesn't misinterpret the expression
+        env:
+          TAG: ghcr.io/${{ toLowerCase(github.repository_owner) }}/nextapp:latest
         run: |
-          # CRITICAL FIX: Converts the repository owner name to lowercase for Docker compliance
-          # The result is stored in an output variable called 'tag'
-          TAG="ghcr.io/${{ toLowerCase(github.repository_owner) }}/nextapp:latest"
+          # The TAG variable is now correctly pre-computed and available in the shell
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         run: |
-          # Builds the image using the securely-formatted tag
+          # Builds the image using the securely-formatted tag from the step output
           docker build -t ${{ steps.meta.outputs.tag }} .
 
       - name: Push Docker image
