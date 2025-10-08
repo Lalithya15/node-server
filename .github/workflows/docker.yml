@@ -9,16 +9,14 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read     # Required to check out the code
-      packages: write    # CRITICAL FIX: Grants permission to push to GHCR
+      contents: read
+      packages: write    # CRITICAL: Must be here!
     
     steps:
       - name: Checkout code
-        # Fetches your repository code
         uses: actions/checkout@v4
 
       - name: Log in to GitHub Container Registry
-        # Logs into ghcr.io using the provided GitHub Token
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -28,19 +26,20 @@ jobs:
       - name: Set image tag (lowercase and dynamic)
         id: meta
         run: |
-          # FIX: Uses the shell 'tr' command to convert the repository owner name to lowercase
+          # Use 'tr' for lowercase owner name
           OWNER_LOWERCASE=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          TAG="ghcr.io/$OWNER_LOWERCASE/nextapp:latest"
           
-          # Sets the final, correctly formatted tag as an output for subsequent steps
+          # FIX: Use the repository name dynamically (node-server)
+          REPO_NAME_LOWERCASE=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          
+          TAG="ghcr.io/$OWNER_LOWERCASE/$REPO_NAME_LOWERCASE:latest"
+          
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         run: |
-          # Builds the image using the securely-formatted tag
           docker build -t ${{ steps.meta.outputs.tag }} .
 
       - name: Push Docker image
         run: |
-          # Pushes the image to GHCR
           docker push ${{ steps.meta.outputs.tag }}
