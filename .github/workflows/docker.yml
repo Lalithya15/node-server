@@ -27,11 +27,12 @@ jobs:
 
       - name: Set image tag (lowercase and dynamic)
         id: meta
-        # FIX: Define TAG as a step environment variable so the shell doesn't misinterpret the expression
-        env:
-          TAG: ghcr.io/${{ toLowerCase(github.repository_owner) }}/nextapp:latest
         run: |
-          # The TAG variable is now correctly pre-computed and available in the shell
+          # Use 'tr' in the shell to guarantee the repository owner name is lowercase
+          OWNER_LOWERCASE=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          TAG="ghcr.io/$OWNER_LOWERCASE/nextapp:latest"
+          
+          # Output the final, correctly formatted tag
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
