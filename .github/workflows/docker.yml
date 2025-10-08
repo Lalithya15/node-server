@@ -9,8 +9,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
+      contents: read     # Required to check out the code
+      packages: write    # CRITICAL FIX: Grants permission to push to GHCR
     
     steps:
       - name: Checkout code
@@ -28,16 +28,16 @@ jobs:
       - name: Set image tag (lowercase and dynamic)
         id: meta
         run: |
-          # Use 'tr' in the shell to guarantee the repository owner name is lowercase
+          # FIX: Uses the shell 'tr' command to convert the repository owner name to lowercase
           OWNER_LOWERCASE=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           TAG="ghcr.io/$OWNER_LOWERCASE/nextapp:latest"
           
-          # Output the final, correctly formatted tag
+          # Sets the final, correctly formatted tag as an output for subsequent steps
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         run: |
-          # Builds the image using the securely-formatted tag from the step output
+          # Builds the image using the securely-formatted tag
           docker build -t ${{ steps.meta.outputs.tag }} .
 
       - name: Push Docker image
