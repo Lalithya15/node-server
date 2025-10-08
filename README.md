@@ -1,106 +1,143 @@
-# Next.js Application - DevOps Assessment
+# DevOps Internship Assessment - Next.js Application Deployment
 
-This is a simple **Next.js** application containerized with Docker, set up for deployment to Kubernetes (Minikube) and automated builds via GitHub Actions.
+## Overview
+This repository demonstrates containerization and deployment of a **Next.js application** using **Docker**, **GitHub Actions**, and **Kubernetes (Minikube)**.
 
----
-
-## Project Overview
-
-- **Framework:** Next.js 15+
-- **Node Version:** 18
-- **Purpose:** Containerize a Next.js app, automate builds/push to GHCR, and deploy on Kubernetes.
-- **Features:**
-  - Simple Next.js starter app
-  - Dockerized for container deployment
-  - Automated GitHub Actions workflow
-  - Kubernetes manifests for Deployment & Service
+- Containerized Next.js app with best practices.
+- Automated Docker image build and push via **GitHub Actions** to **GitHub Container Registry (GHCR)**.
+- Deployed to Kubernetes using manifests.
+- Accessible locally via Minikube NodePort.
 
 ---
 
-## Getting Started (Local)
+## Repository Structure
 
-1. **Clone the repository:**
+.
+├── app/ # Next.js application code
+├── k8s/ # Kubernetes manifests
+│ ├── deployment.yaml
+│ └── service.yaml
+├── .github/workflows/ # GitHub Actions workflow
+│ └── docker.yml
+├── Dockerfile
+├── .dockerignore
+├── README.md
+└── package.json
+
+yaml
+Copy code
+
+---
+
+## Prerequisites
+
+- Git
+- Docker
+- Minikube
+- kubectl
+- Node.js >= 18
+- npm >= 9
+
+---
+
+## Local Setup
+
+1. Clone the repository:
+
 ```bash
-git clone https://github.com/Lalithya15/nextapp.git
-cd nextapp
+git clone https://github.com/Lalithya15/cri-dockerd.git
+cd cri-dockerd
 Install dependencies:
 
 bash
 Copy code
 npm install
-Run development server:
+Run the app locally:
 
 bash
 Copy code
 npm run dev
-Open in browser:
+Access the app at http://localhost:5000
 
-arduino
-Copy code
-http://localhost:5000
-Docker
-Build Docker image
-bash
-Copy code
-docker build -t nextapp:local .
-Run container
-bash
-Copy code
-docker run -p 5000:5000 nextapp:local
-Access app
-arduino
-Copy code
-http://localhost:5000
-GitHub Container Registry (GHCR)
-Login:
+Docker Build & Run Locally
+Build Docker image:
 
 bash
 Copy code
-echo YOUR_PERSONAL_ACCESS_TOKEN | docker login ghcr.io -u Lalithya15 --password-stdin
-Push image to GHCR:
+docker build -t lalithya/nextjs-app:latest .
+Run container:
 
 bash
 Copy code
-docker tag nextapp:local ghcr.io/lalithya15/nextapp:latest
-docker push ghcr.io/lalithya15/nextapp:latest
-Kubernetes (Minikube)
-Kubernetes Manifests
-k8s/deployment.yaml – Deployment with replicas, liveness & readiness probes
+docker run -p 5000:5000 lalithya/nextjs-app:latest
+Access the app at http://localhost:5000
 
-k8s/service.yaml – Service to expose the app
+GitHub Actions Workflow
+The workflow .github/workflows/docker.yml:
 
-Apply manifests
+Builds Docker image on push to main.
+
+Tags image with latest and SHA.
+
+Pushes image to GitHub Container Registry (GHCR).
+
+GHCR Image URL:
+
+bash
+Copy code
+ghcr.io/Lalithya15/nextjs-app:latest
+Kubernetes Deployment (Minikube)
+Start Minikube:
+
+bash
+Copy code
+minikube start --driver=none
+Apply manifests:
+
 bash
 Copy code
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
-Verify deployment
+Verify deployment:
+
 bash
 Copy code
-kubectl get pods
+kubectl get pods -A
 kubectl get svc
-Access app
-Use the NodePort or minikube service command:
+Access the app:
 
 bash
 Copy code
-minikube service nextapp-service
-GitHub Actions Workflow
-.github/workflows/docker.yml builds the Docker image on push to main and pushes to GHCR.
+minikube service hello-minikube
+Or use curl with NodePort:
 
-Uses proper tagging (latest or commit SHA).
-
-Folder Structure
-csharp
+bash
 Copy code
-nextapp/
-├─ app/                  # Next.js app files
-├─ public/               # Static assets
-├─ .github/workflows/    # GitHub Actions workflow
-├─ k8s/                  # Kubernetes manifests
-├─ Dockerfile
-├─ package.json
-├─ package-lock.json
-└─ README.md
-Done By
-Lalithya V
+curl http://10.0.2.92:3000
+
+Notes
+deployment.yaml includes replicas, liveness/readiness probes.
+
+service.yaml exposes app using NodePort.
+
+GitHub Actions automates container image lifecycle, ensuring CI/CD.
+
+Author
+Name: Lalithya V
+
+
+
+GitHub: https://github.com/Lalithya15
+
+yaml
+Copy code
+
+---
+
+✅ This README covers all required points:
+
+- Setup instructions
+- Local run commands
+- Deployment steps on Minikube
+- Access instructions
+- GHCR information
