@@ -1,30 +1,32 @@
 name: Build and Push Docker Image
-
 on:
   push:
     branches:
       - main
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4 # Use the latest version for better security/features
+      
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3 # Use the latest version
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set image tag (lowercase and dynamic)
+        id: meta
+        run: |
+          # Convert the repository owner to lowercase for Docker compliance
+          echo "tag=ghcr.io/${{ toLower(github.repository_owner) }}/nextapp:latest" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/nextapp:latest .
-
+          docker build -t ${{ steps.meta.outputs.tag }} .
+          
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/nextapp:latest
-
+          docker push ${{ steps.meta.outputs.tag }}
